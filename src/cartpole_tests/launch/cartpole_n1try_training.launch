@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <include file="$(find cartpole_description)/launch/main.launch"/>
+    <rosparam command="load" file="$(find cartpole_tests)/config/cartpole_n1try_params.yaml" />
+    <!-- Launch the training system -->
+    <node pkg="cartpole_tests" name="cartpole3D_n1try" type="cartpole3D_n1try.py" output="screen"/>
+    <node pkg="cartpole_tests" name="reward_chart" type="reward_chart.py" output="screen"/>
+</launch>

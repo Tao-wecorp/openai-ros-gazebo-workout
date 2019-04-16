@@ -1,0 +1,7 @@
+<launch>
+    <!-- Load the parameters for the algorithm -->
+    <rosparam command="load" file="$(find legged_robot_training)/config/qlearn_params.yaml" />
+ 
+    <!-- Launch the training system -->
+    <node pkg="legged_robot_training" name="monoped_gym" type="start_training.py" output="screen"/>
+</launch>
