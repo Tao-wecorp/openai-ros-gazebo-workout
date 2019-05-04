@@ -2,13 +2,13 @@
 <launch>
     <arg name="x" default="0.0" />
     <arg name="y" default="0.0" />
-    <arg name="z" default="0.0" />
+    <arg name="z" default="1.0" />
     <arg name="roll" default="0"/>
     <arg name="pitch" default="0"/>
     <arg name="yaw" default="0.0" />
-    <arg name="urdf" default="$(find legged_robot_description)/urdf/monoped.urdf" />
+    <arg name="urdf" default="$(find legged_robot_description)/urdf/monoped.urdf.xacro" />
     <arg name="robot_name" default="monoped" />
-    <param name="robot_description" command="$(find xacro)/xacro $(find legged_robot_description)/urdf/monoped.urdf"  />
+    <param name="robot_description" command="$(find xacro)/xacro $(find legged_robot_description)/urdf/monoped.urdf.xacro"  />
         
     <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
    <node name="spawn_$(arg robot_name)" pkg="gazebo_ros" type="spawn_model"
