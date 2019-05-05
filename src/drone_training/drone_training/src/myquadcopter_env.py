@@ -89,16 +89,16 @@ class QuadCopterEnv(gym.Env):
         if action == 0: #FORWARD
             vel_cmd.linear.x = self.speed_value
             vel_cmd.angular.z = 0.0
-        elif action == 1: #LEFT
+        elif action == 1: #TURN LEFT
             vel_cmd.linear.x = 0.05
             vel_cmd.angular.z = self.speed_value
-        elif action == 2: #RIGHT
+        elif action == 2: #TURN RIGHT
             vel_cmd.linear.x = 0.05
             vel_cmd.angular.z = -self.speed_value
-        elif action == 3: #Up
+        elif action == 3: #GO UP
             vel_cmd.linear.z = self.speed_value
             vel_cmd.angular.z = 0.0
-        elif action == 4: #Down
+        elif action == 4: #GO DOWN
             vel_cmd.linear.z = -self.speed_value
             vel_cmd.angular.z = 0.0
 
@@ -114,19 +114,20 @@ class QuadCopterEnv(gym.Env):
         reward,done = self.process_data(data_pose, data_imu)
 
         # Promote going forwards instead if turning
-        if action == 0:
-            reward += 100
-        elif action == 1 or action == 2:
-            reward -= 50
-        elif action == 3:
-            reward -= 150
-        else:
-            reward -= 50
+        #if action == 0:
+        #    reward += 100
+        #elif action == 1 or action == 2:
+        #    reward -= 50
+        #elif action == 3:
+        #    reward -= 150
+        #else:
+        #    reward -= 50
 
         state = [data_pose.position.x]
         return state, reward, done, {}
 
-
+    def _render(self, mode, close=True):
+        pass
     def take_observation (self):
         data_pose = None
         while data_pose is None:
@@ -144,7 +145,7 @@ class QuadCopterEnv(gym.Env):
         
         return data_pose, data_imu
 
-    def calculate_dist_between_two_Points(self,p_init,p_end):
+    def calculate_dist_between_two_points(self,p_init,p_end):
         a = np.array((p_init.x ,p_init.y, p_init.z))
         b = np.array((p_end.x ,p_end.y, p_end.z))
         
@@ -157,19 +158,19 @@ class QuadCopterEnv(gym.Env):
         
         current_init_pose, imu = self.take_observation()
         
-        self.best_dist = self.calculate_dist_between_two_Points(current_init_pose.position, self.desired_pose.position)
+        self.best_dist = self.calculate_dist_between_two_points(current_init_pose.position, self.desired_pose.position)
     
 
     def check_topic_publishers_connection(self):
         
         rate = rospy.Rate(10) # 10hz
         while(self.takeoff_pub.get_num_connections() == 0):
-            rospy.loginfo("No susbribers to Takeoff yet so we wait and try again")
+            rospy.loginfo("No subscribers to Takeoff yet so we wait and try again")
             rate.sleep();
         rospy.loginfo("Takeoff Publisher Connected")
 
         while(self.vel_pub.get_num_connections() == 0):
-            rospy.loginfo("No susbribers to Cmd_vel yet so we wait and try again")
+            rospy.loginfo("No subscribers to Cmd_vel yet so we wait and try again")
             rate.sleep();
         rospy.loginfo("Cmd_vel Publisher Connected")
         
@@ -194,8 +195,7 @@ class QuadCopterEnv(gym.Env):
         
 
     def improved_distance_reward(self, current_pose):
-        current_dist = self.calculate_dist_between_two_Points(current_pose.position, self.desired_pose.position)
-        #rospy.loginfo("Calculated Distance = "+str(current_dist))
+        current_dist = self.calculate_dist_between_two_points(current_pose.position, self.desired_pose.position)
         
         if current_dist < self.best_dist:
             reward = 100
@@ -204,7 +204,6 @@ class QuadCopterEnv(gym.Env):
             reward = 0
         else:
             reward = -100
-            #print "Made Distance bigger= "+str(self.best_dist)
         
         return reward
         

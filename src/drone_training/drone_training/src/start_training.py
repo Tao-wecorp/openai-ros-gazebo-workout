@@ -20,7 +20,8 @@ import rospkg
 # import our training environment
 import myquadcopter_env
 
-
+from openai_ros.msg import RLExperimentInfo
+from std_msgs.msg import Bool
 if __name__ == '__main__':
     
     rospy.init_node('drone_gym', anonymous=True)
@@ -47,7 +48,9 @@ if __name__ == '__main__':
     epsilon_discount = rospy.get_param("/epsilon_discount")
     nepisodes = rospy.get_param("/nepisodes")
     nsteps = rospy.get_param("/nsteps")
-
+    # Start Reward publishing
+    reward_pub = rospy.Publisher('/openai/reward', RLExperimentInfo, queue_size=1)
+    done_pub = rospy.Publisher('/openai/done', Bool, queue_size=1)
     # Initialises the algorithm that we are going to use for learning
     qlearn = qlearn.QLearn(actions=range(env.action_space.n),
                     alpha=Alpha, gamma=Gamma, epsilon=Epsilon)
@@ -68,9 +71,6 @@ if __name__ == '__main__':
         # Initialize the environment and get first state of the robot
         observation = env.reset()
         state = ''.join(map(str, observation))
-        
-        # Show on screen the actual situation of the robot
-        #env.render()
         
         # for each episode, we test the robot for nsteps
         for i in range(nsteps):
@@ -94,19 +94,23 @@ if __name__ == '__main__':
             else:
                 rospy.loginfo ("DONE")
                 last_time_steps = numpy.append(last_time_steps, [int(i + 1)])
+                reward_msg = RLExperimentInfo()
+                reward_msg.episode_number = x
+                reward_msg.episode_reward = cumulated_reward
+                reward_pub.publish(reward_msg)
                 break 
 
         m, s = divmod(int(time.time() - start_time), 60)
         h, m = divmod(m, 60)
         rospy.loginfo ( ("EP: "+str(x+1)+" - [alpha: "+str(round(qlearn.alpha,2))+" - gamma: "+str(round(qlearn.gamma,2))+" - epsilon: "+str(round(qlearn.epsilon,2))+"] - Reward: "+str(cumulated_reward)+"     Time: %d:%02d:%02d" % (h, m, s)))
 
-    
+    done_msg = Bool()
+    done_msg.data = True
+    done_pub.publish(done_msg)
     rospy.loginfo ( ("\n|"+str(nepisodes)+"|"+str(qlearn.alpha)+"|"+str(qlearn.gamma)+"|"+str(initial_epsilon)+"*"+str(epsilon_discount)+"|"+str(highest_reward)+"| PICTURE |"))
 
     l = last_time_steps.tolist()
     l.sort()
-
-    #print("Parameters: a="+str)
     rospy.loginfo("Overall score: {:0.2f}".format(last_time_steps.mean()))
     rospy.loginfo("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 

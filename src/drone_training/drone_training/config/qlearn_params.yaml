@@ -1,9 +1,9 @@
 # Algortihm Parameters
 alpha: 0.1
 gamma: 0.8
-epsilon: 0.9
-epsilon_discount: 0.999 # 1098 eps to reach 0.1
-nepisodes: 5
+epsilon: 0.1
+epsilon_discount: 1.0
+nepisodes: 100
 nsteps: 100
 
 # Environment Parameters
@@ -14,4 +14,5 @@ desired_pose:
 max_altitude: 2.0   # in meters
 max_incl: 0.7       # in rads
 speed_value: 1.0    # in m/s
-running_step: 0.3   # in seconds
+running_step: 0.2   # in seconds
+experiment: 1

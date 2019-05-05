@@ -684,7 +684,7 @@
   </model>
   <include>
     <uri>model://sjtu_drone</uri>
-    <pose>0 0 1.5 0 0 0</pose>
+    <pose>0 0 0.8 0 0 0</pose>
   </include>
   </world>
 </sdf>
