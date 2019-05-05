@@ -1,0 +1,8 @@
+<launch>
+
+    <!-- Load the parameters for the algorithm -->
+    <rosparam command="load" file="$(find drone_training)/config/qlearn_params.yaml" />
+
+    <!-- Launch the training system -->
+    <node pkg="drone_training" name="gym_train" type="start_training.py" output="screen"/> 
+</launch>
