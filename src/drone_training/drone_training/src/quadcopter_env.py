@@ -189,8 +189,9 @@ class QuadCopterEnv(gym.Env):
 
     def improved_distance_reward(self, current_pose):
         current_dist = self.calculate_dist_between_two_points(current_pose.position, self.desired_pose.position)
-        if current_dist < 0.3:
-            reward = +1
+        if current_dist < 0.8: #Reached the goal
+            reward = +1000
+            print "Reached the goal"
         else:
             reward = -1
         return reward
@@ -206,7 +207,7 @@ class QuadCopterEnv(gym.Env):
         pitch_bad = not(-self.max_incl < pitch < self.max_incl)
         roll_bad = not(-self.max_incl < roll < self.max_incl)
         altitude_bad = not(self.min_altitude < data_position.position.z < self.max_altitude)
-        distance_bad = current_dist > 6.0 # Too away. Punish harshly.
+        distance_bad = current_dist > 5.0 # Too away. Punish harshly.
         if altitude_bad or pitch_bad or roll_bad:
             rospy.loginfo ("(Drone flight status is wrong) >>> ("+str(altitude_bad)+","+str(pitch_bad)+","+str(roll_bad)+")")
             done = True
@@ -216,4 +217,6 @@ class QuadCopterEnv(gym.Env):
             reward = -2000
         else:
             reward = self.improved_distance_reward(data_position)
+            if reward > 0:
+                done = True
         return reward,done

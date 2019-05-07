@@ -91,7 +91,6 @@ if __name__ == '__main__':
         
         # for each episode, we test the robot for nsteps
         for t in itertools.count():
-            print "Step %i"%(t)
             state_ = np.zeros(3)
             state_[0] = int(np.digitize(state[2],vertical_bin))# z first
             state_[1] = int(np.digitize(state[0],horizontal_bins[0]))

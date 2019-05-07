@@ -2,8 +2,8 @@
 alpha: 0.1
 gamma: 1.0
 epsilon: 0.1
-epsilon_discount: 1.0
-nepisodes: 500
+epsilon_discount: 0.95
+nepisodes: 2000
 
 # Environment Parameters
 limits: # in meters
@@ -12,13 +12,13 @@ limits: # in meters
     min_y: -5.0
     max_y: 5.0
     max_altitude: 3.0   
-    min_altitude: 0.6
+    min_altitude: 0.4
 desired_pose:
     x: 3.0
     y: 2.0
     z: 2.0
 
 max_incl: 0.4       # in rads
-speed_value: 1.0    # in m/s
+speed_value: 1.5    # in m/s
 running_step: 0.2   # in seconds
-experiment: 5
+experiment: 7
