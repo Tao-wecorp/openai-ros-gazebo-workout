@@ -9,38 +9,35 @@ Inspired by https://gym.openai.com/evaluations/eval_kWknKOkPQ7izrixdhriurA
 '''
 
 import random
+import numpy as np
 
-class QLearn:
+class TabularQLearn:
     def __init__(self, actions, epsilon, alpha, gamma):
-        self.q = {}
+        self.Q = {}
         self.epsilon = epsilon  # exploration constant
         self.alpha = alpha      # discount constant
         self.gamma = gamma      # discount factor
         self.actions = actions
-
-    def getQ(self, state, action):
-        return self.q.get((state, action), 0.0)
+    def init_q(self,env_size):
+        self.env = np.zeros((10,100,100)) # For each z 100x100 x-y bin. There are 10 z bins.
+        self.num_states = self.env.size
+        for i in range(self.num_states):
+            position = np.unravel_index(i,self.env.shape)
+            self.Q[position] = { a : 0 for a in self.actions}
 
     def learnQ(self, state, action, reward, value):
         '''
         Q-learning:
             Q(s, a) += alpha * (reward(s,a) + max(Q(s') - Q(s,a))            
         '''
-        oldv = self.q.get((state, action), None)
-        if oldv is None:
-            self.q[(state, action)] = reward
-        else:
-            self.q[(state, action)] = oldv + self.alpha * (value - oldv)
+        self.Q[state][action] += self.alpha * (value - self.Q[state][action])
 
     def chooseAction(self, state, return_q=False):
-        q = [self.getQ(state, a) for a in self.actions]
+        q = [self.Q[state][a] for a in self.actions]
         maxQ = max(q)
 
         if random.random() < self.epsilon:
-            minQ = min(q); mag = max(abs(minQ), abs(maxQ))
-            # add random values to all the actions, recalculate maxQ
-            q = [q[i] + random.random() * mag - .5 * mag for i in range(len(self.actions))] 
-            maxQ = max(q)
+            return np.random.choice(self.actions)
 
         count = q.count(maxQ)
         # In case there're several state-action max values 
@@ -57,5 +54,5 @@ class QLearn:
         return action
 
     def learn(self, state1, action1, reward, state2):
-        maxqnew = max([self.getQ(state2, a) for a in self.actions])
+        maxqnew = max([self.Q[state2][a] for a in self.actions])
         self.learnQ(state1, action1, reward, reward + self.gamma*maxqnew)

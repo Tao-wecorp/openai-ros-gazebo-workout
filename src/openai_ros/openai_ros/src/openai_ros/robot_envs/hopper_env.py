@@ -26,21 +26,6 @@ class HopperEnv(robot_gazebo_env.RobotGazeboEnv):
         This has to do with the fact that some plugins with tf, dont understand the reset of the simulation
         and need to be reseted to work properly.
         
-        The Sensors: The sensors accesible are the ones considered usefull for AI learning.
-        
-        Sensor Topic List:
-        * /drone/down_camera/image_raw: RGB Camera facing down.
-        * /drone/front_camera/image_raw: RGB Camera facing front.
-        * /drone/imu: IMU of the drone giving acceleration and orientation relative to world.
-        * /drone/sonar: Sonar readings facing front
-        * /drone/gt_pose: Get position and orientation in Global space
-        * /drone/gt_vel: Get the linear velocity , the angular doesnt record anything.
-        
-        Actuators Topic List: 
-        * /cmd_vel: Move the Drone Around when you have taken off.
-        * /drone/takeoff: Publish into it to take off
-        * /drone/land: Publish to make ParrotDrone Land
-        
         Args:
         """
         rospy.logdebug("Start HopperEnv INIT...")

@@ -32,6 +32,7 @@ class RewardChart():
         rospack = rospkg.RosPack()
         pkg_path = rospack.get_path('drone_training')
         outdir = pkg_path + '/training_results'
+        plt.title('Experiment-'+str(self.experiment))
         plt.savefig(outdir+'/experiment-'+str(self.experiment)+'.png')
 
     def reward_callback(self,msg):
