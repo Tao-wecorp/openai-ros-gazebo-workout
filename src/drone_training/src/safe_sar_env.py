@@ -18,12 +18,12 @@ from gazebo_msgs.msg import ModelStates
 
 #register the training environment in the gym as an available one
 reg = register(
-    id='QuadcopterLiveShow-v1',
-    entry_point='continuous_quadcopter_env:ContinuousQuadCopterEnv',
+    id='QuadSafeSAR-v1',
+    entry_point='safe_sar_env:SafeSAREnv',
     max_episode_steps=100,
     )
 
-class ContinuousQuadCopterEnv(gym.Env):
+class SafeSAREnv(gym.Env):
 
     def __init__(self):
         

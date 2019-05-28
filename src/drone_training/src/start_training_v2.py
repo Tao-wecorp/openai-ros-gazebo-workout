@@ -10,7 +10,6 @@ import time
 import numpy as np
 import random
 import time
-import DQN
 import itertools
 from gym import wrappers
 
@@ -19,7 +18,8 @@ import rospy
 import rospkg
 
 # import our training environment
-import continuous_quadcopter_env
+from DQN_SAR import DQN_SAR
+import safe_sar_env
 from tqdm import tqdm
 
 from openai_ros.msg import RLExperimentInfo
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     rospy.init_node('drone_gym', anonymous=True)
 
     # Create the Gym environment
-    env = gym.make('QuadcopterLiveShow-v1')
+    env = gym.make('QuadSafeSAR-v1')
     rospy.loginfo ( "Gym environment done")
         
     # Set the logging system
@@ -57,35 +57,7 @@ if __name__ == '__main__':
     maxy = rospy.get_param("/limits/max_y")
 
     # Initialises the algorithm that we are going to use for learning
-    agent = DQN.DQN(env,nepisodes,load_model=True,gamma=0.8,epsilon=0.05,epsilon_min=0.01,epsilon_log_decay=0.00001,alpha=0.001,batch_size=128,tao=5,double_q=False)
-    t = 0
-    # Starts the main training loop: the one about the episodes to do
-    for e in tqdm(range(0,nepisodes),desc='DQN Learning'):
-        rospy.loginfo ("STARTING Episode #"+str(e))
-        state = agent.preprocess_state(env.reset())
-        done = False
-        returns = 0
-        while done == False:
-            action = agent.choose_action(state,agent.get_epsilon(e))
-            next_state,reward,done,_ = env.step(action)
-            next_state = agent.preprocess_state(next_state)
-            
-            agent.replay_memory.append((state,action,reward,next_state,done))
-            state = next_state
-            returns += reward
-        agent.replay()
-        agent.agent_network.summarize_rewards(returns,e)
-        agent.episode_num += 1
-        if agent.double_q:
-            agent.agent_network.save()
-        else:
-            if t == agent.tao:
-                agent.target_network_restored = True
-                agent.agent_network.save() # Save current model with weights and bias
-                agent.target_network.load() # Load current model with weights and bias for target network.
-                t = 0
-            else:
-                t += 1
-
+    agent = DQN_SAR(env,nepisodes,load_model=True,gamma=0.8,epsilon=0.05,epsilon_min=0.01,epsilon_log_decay=0.00001,alpha=0.001,batch_size=128,tao=5,double_q=False)
+    ep_len = agent.run()
     env.close()
 
