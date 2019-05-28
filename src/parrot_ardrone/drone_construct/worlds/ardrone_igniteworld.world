@@ -110,7 +110,7 @@
       </camera>
     </gui>
   <model name="robocup_3Dsim_field_0">
-    <pose frame="">2.05927 2.44023 0.5 0 -0 0</pose>
+    <pose frame="">2.05927 2.44023 0.0 0 -0 0</pose>
     <static>1</static>
     <link name="RoboCup 3D Simulation Field::field">
       <pose frame="">0 0 0.01 0 -0 0</pose>
@@ -226,10 +226,10 @@
   </model>
 
 
-<model name="grey_wall">
+  <model name="grey_wall">
     <static>1</static>
     <link name="link">
-      <pose frame="">0 0 1.4 0 -0 0</pose>
+      <pose frame="">0 0 0.9 0 -0 0</pose>
       <collision name="collision">
         <geometry>
           <box>
@@ -271,7 +271,8 @@
       <gravity>1</gravity>
     </link>
     <pose frame="">10.402 7.71769 0 0 -0 0</pose>
-  </model><model name="jersey_barrier">
+  </model>
+  <model name="jersey_barrier">
     <static>1</static>
     <link name="link">
       <visual name="visual">
@@ -282,7 +283,7 @@
         </geometry>
       </visual>
       <collision name="upright">
-        <pose frame="">0 0 0.5715 0 -0 0</pose>
+        <pose frame="">0 0 0.0 0 -0 0</pose>
         <geometry>
           <box>
             <size>4.06542 0.3063 1.143</size>
@@ -398,7 +399,8 @@
       <gravity>1</gravity>
     </link>
     <pose frame="">3 -3 0 0 -0 0</pose>
-  </model><model name="nist_stairs_120">
+  </model>
+  <model name="nist_stairs_120">
     <static>1</static>
     <link name="nist_stairs_120_link">
       <pose frame="">0 0 0 0 -0 0</pose>
@@ -437,7 +439,8 @@
       <gravity>1</gravity>
     </link>
     <pose frame="">9.01164 2.82223 0 0 -0 0</pose>
-  </model><model name="nist_maze_wall_240">
+  </model>
+  <model name="nist_maze_wall_240">
     <static>1</static>
     <link name="nist__maze_wall_240_link">
       <pose frame="">0 0 0 0 -0 0</pose>
@@ -476,7 +479,8 @@
       <gravity>1</gravity>
     </link>
     <pose frame="">9 4 0 0 -0 0</pose>
-  </model><model name="nist_elevated_floor_120">
+  </model>
+  <model name="nist_elevated_floor_120">
     <static>1</static>
     <link name="nist_elevated_floor_120">
       <pose frame="">0 0 0 0 -0 0</pose>
@@ -515,7 +519,8 @@
       <gravity>1</gravity>
     </link>
     <pose frame="">9 4 0 0 -0 0</pose>
-  </model><model name="nist">
+  </model>
+  <model name="nist">
     <static>1</static>
     <link name="nist_maze_wall_triple_holes_120_link">
       <pose frame="">0 0 0 0 -0 0</pose>
@@ -554,7 +559,8 @@
       <gravity>1</gravity>
     </link>
     <pose frame="">9.02578 4.02961 1.2 0 -0 0</pose>
-  </model><model name="jersey_barrier_0">
+  </model>
+  <model name="jersey_barrier_0">
     <static>1</static>
     <link name="link">
       <visual name="visual">
@@ -565,7 +571,7 @@
         </geometry>
       </visual>
       <collision name="upright">
-        <pose frame="">0 0 0.5715 0 -0 0</pose>
+        <pose frame="">0 0 0.0 0 -0 0</pose>
         <geometry>
           <box>
             <size>4.06542 0.3063 1.143</size>
@@ -684,7 +690,7 @@
   </model>
   <include>
     <uri>model://sjtu_drone</uri>
-    <pose>0 0 0.8 0 0 0</pose>
+    <pose>0 0 0.0 0 0 0</pose>
   </include>
   </world>
 </sdf>

@@ -1,0 +1,20 @@
+# Algorithm Parameters
+alpha: 0.001
+gamma: 0.8
+epsilon: 0.99
+epsilon_discount: 0.1
+nepisodes: 300
+
+# Environment Parameters
+limits: # in meters
+  min_x: -70.0
+  max_x: 70.0
+  min_y: -5.0
+  max_y: 45.0
+base:
+  x: 0
+  y: 0
+  z: 5
+
+running_step: 2.5  # in seconds
+battery_depletion: 0.5 # in each 2 seconds

@@ -19,10 +19,26 @@ import rospy
 import rospkg
 
 # import our training environment
-import quadcopter_env
+import discrete_quadcopter_env
 
 from openai_ros.msg import RLExperimentInfo
 from std_msgs.msg import Bool
+
+
+def stringify(action):
+    if action == discrete_quadcopter_env.FORWARD:
+        return "FORWARD"
+    elif action == discrete_quadcopter_env.BACKWARD:
+        return "BACKWARD"
+    elif action == discrete_quadcopter_env.LEFT:
+        return "LEFT"
+    elif action == discrete_quadcopter_env.RIGHT:
+        return "RIGHT"
+    elif action == discrete_quadcopter_env.UP:
+        return "UP"
+    else:
+        return "DOWN"
+    
 if __name__ == '__main__':
     
     rospy.init_node('drone_gym', anonymous=True)
@@ -56,7 +72,12 @@ if __name__ == '__main__':
     maxy = rospy.get_param("/limits/max_y")
     minz = rospy.get_param("/limits/min_altitude")
     maxz = rospy.get_param("/limits/max_altitude")
-
+    horizontal_bins = np.zeros((2,env.shape[1]))
+    #vertical_bin = np.zeros((env.shape[0]))
+    
+    horizontal_bins[0] = np.linspace(minx,maxx,env.shape[1])
+    horizontal_bins[1] = np.linspace(miny,maxy,env.shape[1])
+    vertical_bin = np.linspace(minz,maxz,env.shape[0])
     
     # Start Reward publishing
     reward_pub = rospy.Publisher('/openai/reward', RLExperimentInfo, queue_size=1)
@@ -66,15 +87,8 @@ if __name__ == '__main__':
                     alpha=Alpha, gamma=Gamma, epsilon=Epsilon)
     initial_epsilon = qlearn.epsilon
     #qlearn.Q = np.load(outdir+'/q_value5.npy',Q)
-    env_shape = (3,10,10)
-    qlearn.init_q(env_shape)
-    horizontal_bins = np.zeros((2,10))
-    vertical_bin = np.zeros((3))
     
-    horizontal_bins[0] = np.linspace(minx,maxx,10)
-    horizontal_bins[1] = np.linspace(miny,maxy,10)
-    vertical_bin = np.linspace(minz,maxz,3)
-
+    qlearn.init_q(env.shape)
     start_time = time.time()
 
     # Starts the main training loop: the one about the episodes to do
@@ -91,34 +105,36 @@ if __name__ == '__main__':
         
         # for each episode, we test the robot for nsteps
         for t in itertools.count():
-            state_ = np.zeros(3)
-            state_[0] = int(np.digitize(state[2],vertical_bin))# z first
-            state_[1] = int(np.digitize(state[0],horizontal_bins[0]))
-            state_[2] = int(np.digitize(state[1],horizontal_bins[1]))
+            state_ = np.zeros(2)
+            #state_[0] = int(np.digitize(state[2],vertical_bin))# z first
+            state_[0] = int(np.digitize(state[0],horizontal_bins[0]))
+            state_[1] = int(np.digitize(state[1],horizontal_bins[1]))
+           
             #Clip the state
-            for j in range(3):
+            for j in range(2):
                 if state_[j] < 0:
                     state_[j] = 0
-                elif state_[j] > env_shape[j]-1:
-                    state_[j] = env_shape[j]-1
+                elif state_[j] > env.shape[j]-1:
+                    state_[j] = env.shape[j]-1
 
             # Pick an action based on the current state
             action = qlearn.chooseAction(tuple(state_))
             
             # Execute the action in the environment and get feedback
             next_state, reward, done, info = env.step(action)
+            
             cumulated_reward += reward
-            next_state_ = np.zeros(3)
+            next_state_ = np.zeros(2)
 
-            next_state_[0] = int(np.digitize(next_state[2],vertical_bin)) # z first
-            next_state_[1] = int(np.digitize(next_state[0],horizontal_bins[0]))
-            next_state_[2] = int(np.digitize(next_state[1],horizontal_bins[1]))
-            for j in range(3):
+            #next_state_[0] = int(np.digitize(next_state[2],vertical_bin)) # z first
+            next_state_[0] = int(np.digitize(next_state[0],horizontal_bins[0]))
+            next_state_[1] = int(np.digitize(next_state[1],horizontal_bins[1]))
+            for j in range(2):
                 if next_state_[j] < 0:
                     next_state_[j] = 0
-                elif next_state_[j] > env_shape[j]-1:
-                    next_state_[j] = env_shape[j]-1
-
+                elif next_state_[j] > env.shape[j]-1:
+                    next_state_[j] = env.shape[j]-1
+            print("Go into state: ",next_state_," from state: ",state_," by action: ",stringify(action))
             # Make the algorithm learn based on the results
             qlearn.learn(tuple(state_), action, reward,tuple(next_state_))
 

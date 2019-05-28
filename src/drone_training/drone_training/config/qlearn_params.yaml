@@ -1,5 +1,5 @@
 # Algortihm Parameters
-alpha: 0.1
+alpha: 0.5
 gamma: 1.0
 epsilon: 0.1
 epsilon_discount: 0.95
@@ -18,7 +18,6 @@ desired_pose:
     y: 2.0
     z: 2.0
 
-max_incl: 0.4       # in rads
-speed_value: 1.5    # in m/s
-running_step: 0.2   # in seconds
-experiment: 7
+max_incl: 0.3       # in rads
+running_step: 2.5  # in seconds
+experiment: 8

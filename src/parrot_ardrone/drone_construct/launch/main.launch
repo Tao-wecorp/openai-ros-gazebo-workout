@@ -2,7 +2,7 @@
 <launch>
   <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find sjtu_drone)/launch/simple.launch">
-    <arg name="world_name" value="$(find drone_construct)/worlds/ardrone_igniteworld.world"/>
+    <arg name="world_name" value="$(find sjtu_drone)/worlds/search_and_rescue.world"/>
   </include>
 
 </launch>

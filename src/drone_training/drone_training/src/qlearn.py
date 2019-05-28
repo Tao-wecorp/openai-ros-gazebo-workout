@@ -18,11 +18,12 @@ class TabularQLearn:
         self.alpha = alpha      # discount constant
         self.gamma = gamma      # discount factor
         self.actions = actions
+    
     def init_q(self,env_size):
-        self.env = np.zeros((10,100,100)) # For each z 100x100 x-y bin. There are 10 z bins.
-        self.num_states = self.env.size
+        self.env = env_size # For each z 100x100 x-y bin. There are 10 z bins.
+        self.num_states = np.prod(self.env)
         for i in range(self.num_states):
-            position = np.unravel_index(i,self.env.shape)
+            position = np.unravel_index(i,self.env)
             self.Q[position] = { a : 0 for a in self.actions}
 
     def learnQ(self, state, action, reward, value):
