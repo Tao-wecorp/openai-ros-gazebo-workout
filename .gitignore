@@ -1,8 +1,8 @@
 .catkin_workspace
 build/*
 devel/*
-logs/*
+logs
 .vscode/*
 .catkin_tools/*
 debug.env
-model.png
+*.pyc

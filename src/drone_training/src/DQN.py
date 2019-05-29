@@ -38,7 +38,7 @@ class DQN():
                 self.pred_q_value = tf.add(tf.matmul(self.hidden2_out, self.W3), self.b3)
                 
                 self.avg_q_val = tf.reduce_mean(self.pred_q_value)
-                self.mean_squared_error= tf.nn.l2_loss(self.y_norm -self.pred_q_value_norm)
+                self.mean_squared_error= tf.nn.l2_loss(self.y -self.pred_q_value)
                 self.rewards = tf.placeholder(tf.float32,(None,1))
                 self.avg_rew = tf.reduce_mean(self.rewards)
 
@@ -81,10 +81,10 @@ class DQN():
                 self.sess.run([self.optimiser, self.mean_squared_error], 
                             feed_dict={self.x: x_batch, self.y: y_batch})
         def save(self):
-            self.model_saver.save(self.sess, self.pkg_path+"/checkpoints/dqn-final-model.ckpt")
+            self.model_saver.save(self.sess, self.pkg_path+"/checkpoints/doubledqn_fin/ddqn-final-model.ckpt")
 
         def load(self):
-            self.model_saver.restore(self.sess,self.pkg_path+"/checkpoints/dqn-final-model.ckpt")
+            self.model_saver.restore(self.sess,self.pkg_path+"/checkpoints/doubledqn_fin/ddqn-final-model.ckpt")
 
     def __init__(self, env, num_eps,load_model=False,gamma=1.0, epsilon=1.0, epsilon_min=0.01, epsilon_log_decay=1.0, alpha=0.01, batch_size=128,tao=1,double_q=False):
         self.replay_memory = deque(maxlen=100000)
@@ -126,10 +126,10 @@ class DQN():
         else:
             self.q_learn()
     
-    def q_learn(self,batch_size):
+    def q_learn(self):
         x_batch, y_batch = [], []
         minibatch = random.sample(
-            self.replay_memory, min(len(self.replay_memory), batch_size))
+            self.replay_memory, min(len(self.replay_memory), self.batch_size))
         for state, action, reward, next_state, done in minibatch:
             if self.target_network_restored == False:
                 y_target = self.agent_network.predict(state)
@@ -148,10 +148,10 @@ class DQN():
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-    def double_q_learn(self,batch_size):
+    def double_q_learn(self):
         x_batch, y_batch = [], []
         minibatch = random.sample(
-            self.replay_memory, min(len(self.replay_memory), batch_size))
+            self.replay_memory, min(len(self.replay_memory), self.batch_size))
         for state, action, reward, next_state, done in minibatch:
             if np.random.random() <= 0.5:
                 q_state = self.agent_network.predict(state)
@@ -198,7 +198,7 @@ class DQN():
             done = False
             i = 0
             returns = 0
-            while i<self.max_steps and done == False:
+            while done == False:
                 action = self.choose_action(state,self.get_epsilon(e))
                 next_state,reward,done,_ = self.env.step(action)
                 next_state = self.preprocess_state(next_state)
@@ -207,7 +207,7 @@ class DQN():
                 state = next_state
                 i += 1
                 returns += reward
-            self.replay(self.batch_size)
+            self.replay()
             self.agent_network.summarize_rewards(returns,e)
             self.episode_num += 1
             episode_lengths[e] = i

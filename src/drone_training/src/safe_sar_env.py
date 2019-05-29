@@ -15,6 +15,10 @@ from gym.utils import seeding
 from gym.envs.registration import register
 from gazebo_connection import GazeboConnection
 from gazebo_msgs.msg import ModelStates
+from gazebo_msgs.srv import DeleteModel 
+from gazebo_msgs.srv import SpawnModel
+from gazebo_msgs.srv import SpawnModelRequest
+import roslib
 
 #register the training environment in the gym as an available one
 reg = register(
@@ -33,7 +37,9 @@ class SafeSAREnv(gym.Env):
         self.pos_pub = rospy.Publisher('/drone/cmd_pos',Point,queue_size=1)
         self.takeoff_pub = rospy.Publisher('/drone/takeoff', EmptyTopicMsg, queue_size=0)
         self.switch_pub = rospy.Publisher('/drone/posctrl',Bool,queue_size=1)
-        
+        self.del_model_client = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
+        self.spawn_model_client = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+
         self.running_step = rospy.get_param("/running_step")
         self.minx = rospy.get_param("/limits/min_x")
         self.maxx = rospy.get_param("/limits/max_x")
@@ -68,6 +74,11 @@ class SafeSAREnv(gym.Env):
             ])
         self.observation_space = spaces.Box(area_limits_low,area_limits_high)
         self._seed()
+        file_location = roslib.packages.get_pkg_dir('sjtu_drone') + '/models/person_standing/model.sdf'
+        file_xml = open(file_location)
+        self.person_standing=file_xml.read()
+        self.first_reset = True
+
 
     # A function to initialize the random generator
     def _seed(self, seed=None):
@@ -75,7 +86,7 @@ class SafeSAREnv(gym.Env):
         return [seed]
         
     # Resets the state of the environment and returns an initial observation.
-    def _reset(self):
+    def reset(self):
         
         # 1st: resets the simulation to initial values
         self.gazebo.resetSim()
@@ -87,15 +98,23 @@ class SafeSAREnv(gym.Env):
         self.check_topic_publishers_connection()
         self.reset_battery()
         self.rescued = np.full((len(self.survivors)),False)
+        if self.first_reset == False:
+            req = SpawnModelRequest()
+            for survivor in self.survivors:
+                req.model_name = survivor[0] # model name from command line input
+                req.model_xml = self.person_standing
+                req.initial_pose = survivor[1]  
+                res = self.spawn_model_client(req)
+        
         self.takeoff_sequence()
         self.switch_position_control()
         # 4th: takes an observation of the initial condition of the robot
         data_pose, data_imu = self.take_observation()
         observation = [data_pose.position.x,data_pose.position.y,self.battery]
-
+        self.first_reset = False
         return observation
 
-    def _step(self, action):
+    def step(self, action):
 
         # Action selection means the rescuing of the survivor.
         pos_cmd = Point()
@@ -109,13 +128,15 @@ class SafeSAREnv(gym.Env):
             pos_cmd = self.base
         data_pose, _ =  self.take_observation()
         dist = self.calculate_dist_between_two_points(data_pose.position,pos_cmd)
-        while dist > 0.2:
+        while dist > 0.2 and self.battery > 5.0:
             self.pos_pub.publish(pos_cmd)
-            rospy.sleep(self.running_step)
+            #rospy.sleep(self.running_step)
             data_pose, _ =  self.take_observation()
             dist = self.calculate_dist_between_two_points(data_pose.position,pos_cmd)
-        if action < len(self.rescued):# Strictly small means it is indeed a survivor.
+        
+        if dist < 0.2 and action < len(self.rescued):# Strictly small means it is indeed a survivor.
             self.rescued[action] = True
+            self.del_model_client(self.survivors[action][0])
 
         # finally we get an evaluation based on what happened in the sim
         reward,done = self.process_data(data_pose)
@@ -133,7 +154,7 @@ class SafeSAREnv(gym.Env):
             except:
                 pass
         for i in range(len(all_models.name)):
-            if all_models.name[i].startswith('survivee'):
+            if all_models.name[i].startswith('survivor'):
                 self.survivors.append((all_models.name[i],all_models.pose[i].position))
         
     def take_observation (self):
@@ -205,5 +226,5 @@ class SafeSAREnv(gym.Env):
             reward = -1000
             done = True
         else:
-            reward = -1
+            reward = -20
         return reward,done
