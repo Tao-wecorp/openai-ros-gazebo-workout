@@ -81,10 +81,10 @@ class DQN():
                 self.sess.run([self.optimiser, self.mean_squared_error], 
                             feed_dict={self.x: x_batch, self.y: y_batch})
         def save(self):
-            self.model_saver.save(self.sess, self.pkg_path+"/checkpoints/doubledqn_fin/ddqn-final-model.ckpt")
+            self.model_saver.save(self.sess, self.pkg_path+"/checkpoints/dqn_fin/dqn-final-model.ckpt")
 
         def load(self):
-            self.model_saver.restore(self.sess,self.pkg_path+"/checkpoints/doubledqn_fin/ddqn-final-model.ckpt")
+            self.model_saver.restore(self.sess,self.pkg_path+"/checkpoints/dqn_fin/dqn-final-model.ckpt")
 
     def __init__(self, env, num_eps,load_model=False,gamma=1.0, epsilon=1.0, epsilon_min=0.01, epsilon_log_decay=1.0, alpha=0.01, batch_size=128,tao=1,double_q=False):
         self.replay_memory = deque(maxlen=100000)

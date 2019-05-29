@@ -2,8 +2,11 @@
 alpha: 0.001
 gamma: 0.8
 epsilon: 0.99
-epsilon_discount: 0.1
-nepisodes: 300
+epsilon_discount: 0.001
+epsilon_min: 0.01
+batch_size: 128
+tao: 10
+nepisodes: 800
 
 # Environment Parameters
 limits: # in meters
@@ -16,5 +19,5 @@ base:
   y: 0
   z: 5
 
-running_step: 2.5  # in seconds
-battery_depletion: 0.5 # in each 2 seconds
+running_step: 1.5  # in seconds
+battery_depletion: 2.0 # in each 2 seconds

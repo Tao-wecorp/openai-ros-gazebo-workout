@@ -50,6 +50,8 @@ if __name__ == '__main__':
     Gamma = rospy.get_param("/gamma")
     epsilon_discount = rospy.get_param("/epsilon_discount")
     nepisodes = rospy.get_param("/nepisodes")
+    batch_size = rospy.get_param("/batch_size")
+    tao = rospy.get_param("/tao")
     
     minx = rospy.get_param("/limits/min_x")
     maxx = rospy.get_param("/limits/max_x")
@@ -57,7 +59,7 @@ if __name__ == '__main__':
     maxy = rospy.get_param("/limits/max_y")
 
     # Initialises the algorithm that we are going to use for learning
-    agent = DQN_SAR(env,nepisodes,load_model=True,gamma=0.8,epsilon=0.05,epsilon_min=0.01,epsilon_log_decay=0.00001,alpha=0.001,batch_size=128,tao=5,double_q=False)
+    agent = DQN_SAR(env,nepisodes,load_model=False,gamma=Gamma,epsilon=Epsilon,epsilon_min=0.01,epsilon_log_decay=epsilon_discount,alpha=Alpha,batch_size=batch_size,tao=tao,double_q=False)
     ep_len = agent.run()
     env.close()
 
